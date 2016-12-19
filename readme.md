@@ -43,13 +43,17 @@ from pyzabbix import ZabbixMetric, ZabbixSender
 
 from max_min_indicator import MinMaxIndicator
 
+ip_of_server_with_zabbix = '127.0.0.1'
 time_tail_in_sec = 10
 indicator = MinMaxIndicator(time_tail_in_sec)
 while True:    
+while True:
     val = psutil.cpu_percent(interval=1)
     indicator.put_value(val)
     min_v, cur_v, max_v = indicator.get_min_last_max()
-    metrics= [ZabbixMetric('fors', 'cpu_min', min_v),ZabbixMetric('fors', 'cpu[usage]', val),ZabbixMetric('fors', 'cpu_max', max_v)]
-    ZabbixSender('192.168.115.143').send(metrics)
+    metrics = [ZabbixMetric('server_name', 'cpu_min', min_v),
+               ZabbixMetric('server_name', 'cpu[usage]', val),
+               ZabbixMetric('server_name', 'cpu_max', max_v)]
+    ZabbixSender(ip_of_server_with_zabbix).send(metrics)
     time.sleep(1)
 ```
