@@ -31,3 +31,25 @@ while datetime.datetime.utcnow() < end_time:
     time.sleep(0.01)
 
 ```
+
+
+Example for send cpu series to zabbix with min-max tail
+
+```python
+import time
+import psutil
+
+from pyzabbix import ZabbixMetric, ZabbixSender
+
+from max_min_indicator import MinMaxIndicator
+
+time_tail_in_sec = 10
+indicator = MinMaxIndicator(time_tail_in_sec)
+while True:    
+    val = psutil.cpu_percent(interval=1)
+    indicator.put_value(val)
+    min_v, cur_v, max_v = indicator.get_min_last_max()
+    metrics= [ZabbixMetric('fors', 'cpu_min', min_v),ZabbixMetric('fors', 'cpu[usage]', val),ZabbixMetric('fors', 'cpu_max', max_v)]
+    ZabbixSender('192.168.115.143').send(metrics)
+    time.sleep(1)
+```
